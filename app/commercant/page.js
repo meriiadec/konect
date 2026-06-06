@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { supabase } from "../../lib/supabase";
 
 export default function Commercant() {
   const [form, setForm] = useState({
@@ -10,14 +11,27 @@ export default function Commercant() {
     zone: "",
   });
   const [envoye, setEnvoye] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    setEnvoye(true);
+    setLoading(true);
+
+    const { error } = await supabase
+      .from("commercants")
+      .insert([form]);
+
+    if (error) {
+      alert("Erreur lors de l'inscription. Réessaie.");
+      console.error(error);
+    } else {
+      setEnvoye(true);
+    }
+    setLoading(false);
   }
 
   if (envoye) {
@@ -116,9 +130,10 @@ export default function Commercant() {
 
           <button
             type="submit"
-            className="mt-4 bg-orange-500 px-8 py-4 rounded-full font-semibold text-white hover:bg-orange-400 transition"
+            disabled={loading}
+            className="mt-4 bg-orange-500 px-8 py-4 rounded-full font-semibold text-white hover:bg-orange-400 transition disabled:opacity-50"
           >
-            Soumettre mon inscription
+            {loading ? "Envoi en cours..." : "Soumettre mon inscription"}
           </button>
         </form>
       </section>
