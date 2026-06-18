@@ -1,15 +1,21 @@
 "use client";
+
+import Link from "next/link";
 import { useState } from "react";
+import Navbar from "../../components/Navbar";
 import { supabase } from "../../lib/supabase";
 
+const etatInitial = {
+  nom: "",
+  boutique: "",
+  secteur: "",
+  telephone: "",
+  zone: "",
+};
+
 export default function Commercant() {
-  const [form, setForm] = useState({
-    nom: "",
-    boutique: "",
-    secteur: "",
-    telephone: "",
-    zone: "",
-  });
+  const [form, setForm] = useState(etatInitial);
+  const [erreurs, setErreurs] = useState({});
   const [envoye, setEnvoye] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -17,126 +23,133 @@ export default function Commercant() {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
+  function validerFormulaire() {
+    const nouvellesErreurs = {};
+
+    if (form.nom.trim().length < 3) {
+      nouvellesErreurs.nom = "Le nom doit contenir au moins 3 caractères.";
+    }
+
+    if (form.boutique.trim().length < 2) {
+      nouvellesErreurs.boutique = "Le nom de la boutique est trop court.";
+    }
+
+    if (!form.secteur) {
+      nouvellesErreurs.secteur = "Choisis un secteur.";
+    }
+
+    const telephoneNettoye = form.telephone.replace(/\s/g, "");
+    if (!/^[0-9]{8,12}$/.test(telephoneNettoye)) {
+      nouvellesErreurs.telephone = "Numéro invalide. Utilise uniquement des chiffres (8 à 12).";
+    }
+
+    if (form.zone.trim().length < 2) {
+      nouvellesErreurs.zone = "Indique ta zone ou ton quartier.";
+    }
+
+    setErreurs(nouvellesErreurs);
+    return Object.keys(nouvellesErreurs).length === 0;
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
+
+    if (!validerFormulaire()) {
+      return;
+    }
+
     setLoading(true);
 
-    const { error } = await supabase
-      .from("commercants")
-      .insert([form]);
+    const donnees = {
+      ...form,
+      nom: form.nom.trim(),
+      boutique: form.boutique.trim(),
+      telephone: form.telephone.replace(/\s/g, ""),
+      zone: form.zone.trim(),
+    };
+    const { error } = await supabase.from("commercants").insert([donnees]);
 
     if (error) {
-      alert("Erreur lors de l'inscription. Réessaie.");
+      setErreurs({ general: "Erreur lors de l'inscription. Réessaie dans un instant." });
       console.error(error);
     } else {
       setEnvoye(true);
+      setForm(etatInitial);
     }
+
     setLoading(false);
   }
 
   if (envoye) {
     return (
-      <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
+      <main className="flex min-h-screen flex-col items-center justify-center bg-[#090909] px-6 text-white">
         <div className="text-center">
-          <div className="text-6xl mb-6">✅</div>
-          <h2 className="text-3xl font-bold mb-4">Inscription reçue !</h2>
-          <p className="text-gray-400 text-lg">
+          <div className="mb-6 text-6xl">✅</div>
+          <h2 className="mb-4 text-3xl font-bold">Inscription reçue !</h2>
+          <p className="text-lg text-gray-400">
             Nous allons vous contacter sous 24h pour activer votre boutique sur Konect.
           </p>
-          <a href="/" className="mt-8 inline-block bg-orange-500 px-8 py-4 rounded-full font-semibold hover:bg-orange-400 transition">
-            Retour à l'accueil
-          </a>
+          <Link href="/" className="mt-8 inline-block rounded-full bg-orange-500 px-8 py-4 font-semibold transition hover:bg-orange-400">
+            Retour à l&apos;accueil
+          </Link>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <header className="px-8 py-6">
-        <a href="/" className="text-2xl font-bold text-orange-500">Konect</a>
-      </header>
+    <main className="min-h-screen bg-[#090909] text-white">
+      <Navbar />
 
-      <section className="max-w-lg mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold mb-2">Inscrire ma boutique</h1>
-        <p className="text-gray-400 mb-8">Rejoins Konect et commence à vendre plus dès aujourd'hui.</p>
+      <section className="mx-auto max-w-lg px-6 pb-12 pt-28">
+        <h1 className="mb-2 text-3xl font-bold">Inscrire ma boutique</h1>
+        <p className="mb-8 text-gray-400">Rejoins Konect et commence à vendre plus dès aujourd&apos;hui.</p>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <div>
-            <label className="text-sm text-gray-400 mb-1 block">Ton nom complet</label>
-            <input
-              name="nom"
-              value={form.nom}
-              onChange={handleChange}
-              required
-              placeholder="Ex: Adjoua Koffi"
-              className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500"
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+          <Champ label="Ton nom complet" erreur={erreurs.nom}>
+            <input name="nom" value={form.nom} onChange={handleChange} placeholder="Ex: Adjoua Koffi" className="input-konect" />
+          </Champ>
 
-          <div>
-            <label className="text-sm text-gray-400 mb-1 block">Nom de ta boutique</label>
-            <input
-              name="boutique"
-              value={form.boutique}
-              onChange={handleChange}
-              required
-              placeholder="Ex: Boutique Grâce"
-              className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500"
-            />
-          </div>
+          <Champ label="Nom de ta boutique" erreur={erreurs.boutique}>
+            <input name="boutique" value={form.boutique} onChange={handleChange} placeholder="Ex: Boutique Grâce" className="input-konect" />
+          </Champ>
 
-          <div>
-            <label className="text-sm text-gray-400 mb-1 block">Secteur d'activité</label>
-            <select
-              name="secteur"
-              value={form.secteur}
-              onChange={handleChange}
-              required
-              className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500"
-            >
+          <Champ label="Secteur d&apos;activité" erreur={erreurs.secteur}>
+            <select name="secteur" value={form.secteur} onChange={handleChange} className="input-konect">
               <option value="">Choisir un secteur</option>
               <option value="alimentation">Alimentation</option>
               <option value="electronique">Électronique</option>
-              <option value="mode">Mode & Vêtements</option>
-              <option value="beaute">Beauté & Cosmétiques</option>
+              <option value="mode">Mode et vêtements</option>
+              <option value="beaute">Beauté et cosmétiques</option>
               <option value="autre">Autre</option>
             </select>
-          </div>
+          </Champ>
 
-          <div>
-            <label className="text-sm text-gray-400 mb-1 block">Numéro de téléphone</label>
-            <input
-              name="telephone"
-              value={form.telephone}
-              onChange={handleChange}
-              required
-              placeholder="Ex: 97000000"
-              className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500"
-            />
-          </div>
+          <Champ label="Numéro de téléphone" erreur={erreurs.telephone}>
+            <input name="telephone" value={form.telephone} onChange={handleChange} inputMode="numeric" placeholder="Ex: 97000000" className="input-konect" />
+          </Champ>
 
-          <div>
-            <label className="text-sm text-gray-400 mb-1 block">Zone / Quartier</label>
-            <input
-              name="zone"
-              value={form.zone}
-              onChange={handleChange}
-              required
-              placeholder="Ex: Cadjehoun, Akpakpa..."
-              className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-orange-500"
-            />
-          </div>
+          <Champ label="Zone / quartier" erreur={erreurs.zone}>
+            <input name="zone" value={form.zone} onChange={handleChange} placeholder="Ex: Cadjehoun, Akpakpa..." className="input-konect" />
+          </Champ>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-4 bg-orange-500 px-8 py-4 rounded-full font-semibold text-white hover:bg-orange-400 transition disabled:opacity-50"
-          >
+          {erreurs.general && <p className="text-sm text-red-400">{erreurs.general}</p>}
+
+          <button type="submit" disabled={loading} className="mt-4 rounded-full bg-orange-500 px-8 py-4 font-semibold text-white transition hover:bg-orange-400 disabled:opacity-50">
             {loading ? "Envoi en cours..." : "Soumettre mon inscription"}
           </button>
         </form>
       </section>
     </main>
+  );
+}
+
+function Champ({ label, erreur, children }) {
+  return (
+    <div>
+      <label className="mb-1 block text-sm text-gray-400">{label}</label>
+      {children}
+      {erreur && <p className="mt-1 text-sm text-red-400">{erreur}</p>}
+    </div>
   );
 }

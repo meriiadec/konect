@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Navbar from "../components/Navbar";
 
 export default function Home() {
   const roles = [
@@ -27,27 +27,9 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#090909] text-white">
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-5 sm:px-8">
-        <Link href="/" className="text-2xl font-bold text-orange-400">
-          Konect
-        </Link>
-        <nav className="flex items-center gap-2 sm:gap-3" aria-label="Navigation principale">
-          <a
-            href="/commercant"
-            className="rounded-lg border border-white/20 px-3 py-2 text-sm font-medium text-white/90 transition hover:border-white hover:bg-white hover:text-black sm:px-4"
-          >
-            Commercant
-          </a>
-          <a
-            href="/operateur"
-            className="rounded-lg bg-orange-500 px-3 py-2 text-sm font-semibold text-black transition hover:bg-orange-400 sm:px-4"
-          >
-            Travailler
-          </a>
-        </nav>
-      </header>
+      <Navbar />
 
-      <section className="mx-auto grid min-h-[calc(100vh-88px)] w-full max-w-6xl items-center gap-10 px-5 pb-16 pt-6 sm:px-8 lg:grid-cols-[1.05fr_0.95fr]">
+      <section className="mx-auto grid min-h-[calc(100vh-88px)] w-full max-w-6xl items-center gap-10 px-5 pb-16 pt-28 sm:px-8 lg:grid-cols-[1.05fr_0.95fr]">
         <div>
           <p className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-cyan-300">
             Marketplace locale
@@ -56,21 +38,13 @@ export default function Home() {
             Konect
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-300 sm:text-xl">
-            Une plateforme pour relier les boutiques, les jeunes operateurs et
-            les clients au Benin: vendre plus vite, livrer mieux, creer du
-            revenu.
+            Une plateforme pour relier les boutiques, les jeunes operateurs et les clients au Benin: vendre plus vite, livrer mieux, creer du revenu.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <a
-              href="/commercant"
-              className="rounded-lg bg-orange-500 px-6 py-4 text-center font-bold text-black transition hover:bg-orange-400"
-            >
+            <a href="/commercant" className="rounded-lg bg-orange-500 px-6 py-4 text-center font-bold text-black transition hover:bg-orange-400">
               Inscrire ma boutique
             </a>
-            <a
-              href="/operateur"
-              className="rounded-lg border border-white/25 px-6 py-4 text-center font-bold text-white transition hover:border-white hover:bg-white hover:text-black"
-            >
+            <a href="/operateur" className="rounded-lg border border-white/25 px-6 py-4 text-center font-bold text-white transition hover:border-white hover:bg-white hover:text-black">
               Devenir operateur
             </a>
           </div>
@@ -84,9 +58,7 @@ export default function Home() {
               <div className="mt-3 flex items-center justify-between gap-4">
                 <div>
                   <p className="font-semibold">Pack boutique Cotonou</p>
-                  <p className="text-sm text-zinc-400">
-                    Livraison + confirmation client
-                  </p>
+                  <p className="text-sm text-zinc-400">Livraison et confirmation client</p>
                 </div>
                 <span className="rounded-md bg-emerald-400 px-3 py-1 text-sm font-bold text-black">
                   En cours
@@ -103,17 +75,17 @@ export default function Home() {
                 <p className="mt-1 text-sm text-zinc-400">missions ouvertes</p>
               </div>
             </div>
-            {steps.map((step, index) => (
-              <div
-                key={step}
-                className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-4"
-              >
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-cyan-300 text-sm font-black text-black">
-                  {index + 1}
-                </span>
-                <span className="text-sm font-medium text-zinc-200">{step}</span>
-              </div>
-            ))}
+            {steps.map((step, index) => {
+              const num = index + 1;
+              return (
+                <div key={step} className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-4">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-cyan-300 text-sm font-black text-black">
+                    {num}
+                  </span>
+                  <span className="text-sm font-medium text-zinc-200">{step}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -125,20 +97,19 @@ export default function Home() {
               Un meme reseau, trois besoins.
             </h2>
             <p className="mt-4 leading-7 text-zinc-400">
-              Konect doit devenir le point de rencontre entre l&apos;offre locale,
-              les missions terrain et les commandes client.
+              Konect doit devenir le point de rencontre entre l offre locale, les missions terrain et les commandes client.
             </p>
           </div>
           <div className="mt-10 grid gap-4 md:grid-cols-3">
-            {roles.map((role) => (
-              <article
-                key={role.title}
-                className={`rounded-lg border ${role.accent} bg-white/[0.03] p-5`}
-              >
-                <h3 className="text-xl font-bold">{role.title}</h3>
-                <p className="mt-3 leading-7 text-zinc-400">{role.text}</p>
-              </article>
-            ))}
+            {roles.map((role) => {
+              const classeCarte = "rounded-lg border " + role.accent + " bg-white/[0.03] p-5";
+              return (
+                <article key={role.title} className={classeCarte}>
+                  <h3 className="text-xl font-bold">{role.title}</h3>
+                  <p className="mt-3 leading-7 text-zinc-400">{role.text}</p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>

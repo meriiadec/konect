@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Konect
 
-## Getting Started
+Konect est un MVP de marketplace locale pour connecter trois groupes :
 
-First, run the development server:
+- les commerçants qui veulent publier leurs produits ;
+- les opérateurs terrain qui veulent recevoir des missions ;
+- les clients qui consultent le catalogue et commandent via WhatsApp.
+
+## Stack
+
+- Next.js App Router
+- React
+- Tailwind CSS
+- Supabase Database + Storage
+- Déploiement prévu sur Vercel
+
+## Installation
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ouvre ensuite `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Variables d'environnement
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copie `.env.example` vers `.env.local`, puis renseigne :
 
-## Learn More
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `ADMIN_PASSWORD`
+- `ADMIN_SESSION_SECRET`
+- `SUPABASE_SERVICE_ROLE_KEY` si tu veux que les routes admin lisent les données côté serveur avec les droits serveur.
 
-To learn more about Next.js, take a look at the following resources:
+Ne partage jamais `.env.local`, `ADMIN_PASSWORD` ou `SUPABASE_SERVICE_ROLE_KEY`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Pages principales
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `/` : page d'accueil
+- `/commercant` : inscription commerçant
+- `/operateur` : inscription opérateur
+- `/produits` : catalogue public
+- `/produits/ajouter` : ajout produit
+- `/admin` : dashboard admin protégé par cookie HTTP-only
 
-## Deploy on Vercel
+## Supabase
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Le dossier `supabase/schema.sql` contient une base de départ pour créer les tables, le bucket Storage et des politiques RLS minimales.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Avant une vraie mise en ligne, vérifie les politiques RLS selon le niveau de confidentialité voulu, surtout pour les numéros de téléphone et les produits en attente.
+
+## Scripts
+
+```bash
+npm run lint
+npm run build
+npm run start
+```
