@@ -6,12 +6,17 @@ export const runtime = "nodejs";
 
 const statutsAutorises = new Set(["pending", "published", "rejected"]);
 
+
 function createServerSupabaseClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!url || !key) {
-    throw new Error("Configuration Supabase manquante.");
+  if (!url) {
+    throw new Error("NEXT_PUBLIC_SUPABASE_URL est manquante dans Vercel.");
+  }
+
+  if (!key) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY est manquante dans Vercel. Ajoute la clé service_role de Supabase puis redéploie.");
   }
 
   return createClient(url, key, {
@@ -21,6 +26,7 @@ function createServerSupabaseClient() {
     },
   });
 }
+
 
 export async function PATCH(request, { params }) {
   const session = request.cookies.get(COOKIE_NAME)?.value;
@@ -35,7 +41,14 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ message: "Statut invalide." }, { status: 400 });
   }
 
-  const supabase = createServerSupabaseClient();
+  let supabase;
+
+  try {
+    supabase = createServerSupabaseClient();
+  } catch (error) {
+    return NextResponse.json({ message: error.message }, { status: 500 });
+  }
+
   const { data, error } = await supabase
     .from("produits")
     .update({ statut })
