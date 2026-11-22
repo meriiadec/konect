@@ -19,6 +19,7 @@ export default function Produits() {
       const { data, error } = await supabase
         .from("produits")
         .select("*")
+        .eq("statut", "published")
         .order("created_at", { ascending: false });
 
       if (!actif) {

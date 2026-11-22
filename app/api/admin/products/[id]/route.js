@@ -35,6 +35,7 @@ export async function PATCH(request, { params }) {
     return NextResponse.json({ message: "Non autorisé." }, { status: 401 });
   }
 
+  const { id } = await params;
   const { statut } = await request.json();
 
   if (!statutsAutorises.has(statut)) {
@@ -52,7 +53,7 @@ export async function PATCH(request, { params }) {
   const { data, error } = await supabase
     .from("produits")
     .update({ statut })
-    .eq("id", params.id)
+    .eq("id", id)
     .select("*")
     .single();
 
